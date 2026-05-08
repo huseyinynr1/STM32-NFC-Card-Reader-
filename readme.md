@@ -415,7 +415,7 @@ Video; sistemin açılışını, kart kişiselleştirme işlemini, API üzerinde
 
 ![Insufficient Balance Screen](docs/tft-insufficient-balance.jpg)
 
-![Success Screen](docs/tft-succes.jpg)
+![Success Screen](docs/success-screen.jpg)
 
 ---
 
