@@ -10,7 +10,7 @@ Proje, toplu taşıma kart okuyucu mantığına benzer şekilde çalışır. Sis
 
 ## Genel Bakış
 
-Bu sistemde STM32, kart okuyucu cihazın ana kontrol birimi olarak çalışır. RC522 modülü ile MIFARE kart okunur/yazılır, SIM800C üzerinden HTTP GET/POST istekleri yapılır, DS3231 RTC ile zaman bilgisi alınır ve ILI9341 TFT ekran üzerinden kullanıcıya işlem durumu gösterilir.
+Bu sistemde STM32, kart okuyucu cihazın ana kontrol birimi olarak çalışır. RC522 modülü ile MIFARE kart okunur/yazılır, SIM800C üzerinden HTTP GET/POST istekleri yapılır, DS3231 RTC ile zaman bilgisi alınır ve ILI9341 TFT ekran üzerinden kullanıcıya işlem durumu gösterilir.Sistem, SIM800C GSM/GPRS modülü üzerinden hücresel veri bağlantısı kurarak uzak API servisiyle haberleşir. Bu sayede cihaz, Wi-Fi veya Ethernet bağlantısına ihtiyaç duymadan kart kişiselleştirme, bakiye yükleme sorgulama ve işlem sonucu bildirme gibi operasyonları HTTP GET/POST istekleriyle gerçekleştirebilir.
 
 Temel senaryolar:
 
@@ -37,6 +37,10 @@ Temel senaryolar:
 - **Custom low-level driver development**
 - FreeRTOS task/queue/mutex mimarisi
 - SPI, I2C, USART, DMA, Timer, GPIO
+- GSM/GPRS tabanlı hücresel haberleşme
+- SIM800C AT command yönetimi
+- HTTP GET/POST haberleşmesi
+- UART interrupt/DMA tabanlı modem cevap yönetimi
 - Interrupt, timeout ve donanım durum bayrağı yönetimi
 
 ### Donanım Modülleri
@@ -95,7 +99,10 @@ RFID + GSM + RTC + TFT Application Flow
 - Kart kişiselleştirme işlemi
 - Kart bakiyesi, maksimum bakiye, vize tarihi ve işlem sayaçlarının kart bloklarında tutulması
 - CRC16 ile kart verisi bütünlük kontrolü
-- SIM800C ile GPRS bağlantısı ve HTTP GET/POST işlemleri
+- SIM800C GSM/GPRS modülü ile hücresel veri bağlantısı kurulması
+- AT komutlarıyla SIM durumu, şebeke kaydı, GPRS bearer ve HTTP servis yönetimi
+- Uzak API servisine HTTP GET/POST istekleri gönderilmesi
+- HTTP cevaplarının UART interrupt/DMA tabanlı alınması ve timeout/paket mantığıyla işlenmesi
 - API’den gelen JSON cevaplarının manuel parse edilmesi
 - FreeRTOS task/queue mimarisi
 - TFT ekranda saat, tarih, bakiye, yüklenen tutar ve işlem sonucu gösterimi
@@ -316,9 +323,9 @@ GET /topup/getbyuid?cardUid=...
 
 ---
 
-## SIM800C HTTP Haberleşmesi
+## SIM800C GSM/GPRS ve HTTP Haberleşmesi
 
-SIM800C tarafında temel AT komut akışı şu mantıkla ilerler:
+SIM800C modülü, projede STM32 cihazının GSM/GPRS ağı üzerinden uzak API servisiyle haberleşmesini sağlar. STM32, USART hattı üzerinden SIM800C’ye AT komutları gönderir; SIM kart, şebeke kaydı, GPRS bağlantısı, HTTP servis başlatma, GET/POST işlemleri ve sunucu cevaplarının okunması bu komut akışıyla yönetilir.
 
 1. Modül başlatılır.
 2. SIM ve şebeke durumu kontrol edilir.
@@ -475,8 +482,9 @@ Repository yapısı:
 - STM32 üzerinde register-level bare-metal driver geliştirme yaklaşımı
 - FreeRTOS ile görev ayrımı ve queue tabanlı haberleşme
 - SPI hattını RC522 ve TFT arasında kontrollü kullanma
-- SIM800C ile gerçek HTTP haberleşmesi gerçekleştirme
-- AT komut cevaplarını timeout ve paket mantığıyla yönetme
+- SIM800C GSM/GPRS modülü ile hücresel ağ üzerinden API haberleşmesi
+- AT command tabanlı modem kontrolü, GPRS bearer yönetimi ve HTTP GET/POST akışı
+- AT komut cevaplarını timeout, IDLE/interrupt ve paket mantığıyla yönetme
 - MIFARE Classic kart bloklarına özel veri formatı yazma
 - CRC ile kart verisi bütünlüğü kontrolü
 - RTC tabanlı zaman yönetimi
