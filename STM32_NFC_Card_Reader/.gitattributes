@@ -1,0 +1,3 @@
+.cproject merge=ours
+.project  merge=ours
+.settings/** merge=ours

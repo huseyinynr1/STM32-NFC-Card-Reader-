@@ -1,0 +1,18 @@
+# Derleme çıktıları (Build outputs)
+Debug/
+Release/
+bin/
+obj/
+
+# Geçici dosyalar
+*.o
+*.d
+*.su
+*.elf
+*.list
+*.map
+*.launch
+
+# İşletim sistemi dosyaları
+Thumbs.db
+.DS_Store
