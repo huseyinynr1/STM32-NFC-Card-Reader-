@@ -400,8 +400,8 @@ Postman ile API servisinin temel endpoint testleri yapılmıştır. Aşağıdaki
 ---
 
 ## Demo Video
+https://github.com/user-attachments/assets/29436a0f-e0b2-4e96-8eec-04d78dfcce11
 
-[Demo Videosu](docs/demo.mp4)
 
 Video; sistemin açılışını, kart kişiselleştirme işlemini, API üzerinden bakiye yükleme isteği oluşturulmasını, kart okutulduğunda bakiyenin karta yazılmasını, kart tipine göre ücret düşülmesini ve TFT ekrandaki işlem sonuçlarını göstermektedir.
 
