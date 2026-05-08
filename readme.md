@@ -411,7 +411,7 @@ Video; sistemin açılışını, kart kişiselleştirme işlemini, API üzerinde
 
 ### Donanım ve TFT Çıktıları
 
-![Hardware Setup](docs/circuit-diagram.jpg)
+![Circuit Diagram](docs/circuit-diagram.png)
 
 ![Insufficient Balance Screen](docs/tft-insufficient-balance.jpg)
 
