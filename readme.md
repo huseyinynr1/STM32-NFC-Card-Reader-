@@ -89,7 +89,7 @@ Temel senaryolar:
 
 ## Bootloader ve Firmware Update Mimarisi
 
-Projeye eklenen bootloader yapısı, STM32F407 üzerinde ana uygulamadan bağımsız olarak çalışan ayrı bir firmware katmanıdır. Bootloader’ın görevi; cihaz açılışında güncelleme isteğini kontrol etmek, yeni firmware mevcutsa bunu sunucudan almak, FLASH belleğe güvenli şekilde yazmak ve geçerli uygulamaya kontrollü geçiş yapmaktır.
+Bootloader yapısı, STM32F407 üzerinde ana uygulamadan bağımsız olarak çalışan ayrı bir firmware katmanıdır. Bootloader’ın görevi; cihaz açılışında güncelleme isteğini kontrol etmek, yeni firmware mevcutsa bunu sunucudan almak, FLASH belleğe güvenli şekilde yazmak ve geçerli uygulamaya kontrollü geçiş yapmaktır.
 
 Bu yapı sayesinde ana uygulama kodu güncellenebilir hale getirilmiş ve proje gerçek ürünlerde kullanılan firmware update mantığına yaklaştırılmıştır.
 
@@ -800,7 +800,7 @@ Repository yapısı:
 
 ## Geliştirici Notu
 
-Bu proje, gömülü yazılım tarafında gerçek bir ürün akışını simüle etmek amacıyla geliştirilmiştir. Kart kişiselleştirme, bakiye yönetimi, GSM/GPRS üzerinden API haberleşmesi, TFT kullanıcı arayüzü ve FreeRTOS task mimarisini bir araya getiren uçtan uca bir gömülü sistem çalışmasıdır.
+Bu proje, STM32 tabanlı bir kart okuyucu sisteminde karşılaşılabilecek kart yönetimi, haberleşme, kullanıcı bilgilendirme ve firmware güncelleme süreçlerini uçtan uca ele alacak şekilde geliştirilmiştir. Kart kişiselleştirme, bakiye yönetimi, GSM/GPRS üzerinden API haberleşmesi, TFT kullanıcı arayüzü ve FreeRTOS task mimarisini bir araya getiren uçtan uca bir gömülü sistem çalışmasıdır.
 
 Bootloader katmanı ile proje; firmware güncelleme, FLASH bellek yönetimi, metadata tabanlı doğrulama, CRC32 bütünlük kontrolü ve bootloader’dan ana uygulamaya güvenli geçiş gibi gerçek ürün geliştirme süreçlerinde kullanılan konuları da kapsayacak şekilde genişletilmiştir.
 
