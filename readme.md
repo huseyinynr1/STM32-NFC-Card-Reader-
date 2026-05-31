@@ -8,21 +8,17 @@ Bootloader yapısı sayesinde cihaz, SIM800C üzerinden sunucuda aktif olarak i�
 
 Bu yapı ile proje; RFID/NFC kart yönetimi, GSM/GPRS tabanlı HTTP haberleşmesi, FreeRTOS görev mimarisi, MIFARE veri yönetimi, FLASH bellek işlemleri ve bootloader tabanlı firmware update süreçlerini bir araya getiren uçtan uca bir gömülü sistem uygulamasına dönüştürülmüştür.
 
-> Bu README, projenin genel mimarisini ve çalışma mantığını anlatır. API servisi projede destekleyici/test backend olarak kullanılmıştır; ana odak STM32 gömülü yazılım tarafıdır.
+> Bu README, projenin genel mimarisini ve çalışma mantığını anlatır. API servisi projede destekleyici backend olarak kullanılmıştır; ana odak STM32 gömülü yazılım tarafıdır.
 
 ---
 
 ## Genel Bakış
 
-<<<<<<< HEAD
-Bu proje, STM32F407 tabanlı bir NFC kart okuyucu ve bakiye yönetim sistemidir. RC522 ile MIFARE kart okuma/yazma, SIM800C ile HTTP tabanlı API haberleşmesi, DS3231 ile gerçek zaman bilgisi ve ILI9341 TFT ekran ile kullanıcı bilgilendirme işlemleri STM32 üzerinde yönetilir.
+Bu proje, STM32F407 tabanlı bir NFC kart okuyucu, bakiye yönetimi ve firmware güncelleme sistemidir. RC522 ile MIFARE kart okuma/yazma işlemleri yapılır, SIM800C üzerinden GSM/GPRS tabanlı HTTP haberleşmesi gerçekleştirilir, DS3231 ile gerçek zaman bilgisi alınır ve ILI9341 TFT ekran üzerinden kullanıcıya işlem durumu gösterilir.
 
 Bootloader mimarisi ile sistem, sunucuda aktif olan yeni firmware’i SIM800C üzerinden parça parça indirebilir, STM32 FLASH ana uygulama alanına yazabilir ve CRC32 doğrulaması sonrası güvenli şekilde çalıştırabilir.
 
-Bootloader; firmware metadata kontrolü, uygulama CRC doğrulaması, stack pointer/reset handler adres kontrolü ve vector table yönlendirmesi ile ana uygulamaya kontrollü geçiş sağlar.
-=======
-Bu sistemde STM32, kart okuyucu cihazın ana kontrol birimi olarak çalışır. RC522 modülü ile MIFARE kart okunur/yazılır, SIM800C üzerinden HTTP GET/POST istekleri yapılır, DS3231 RTC ile zaman bilgisi alınır ve ILI9341 TFT ekran üzerinden kullanıcıya işlem durumu gösterilir.Sistem, SIM800C GSM/GPRS modülü üzerinden hücresel veri bağlantısı kurarak uzak API servisiyle haberleşir. Bu sayede cihaz, Wi-Fi veya Ethernet bağlantısına ihtiyaç duymadan kart kişiselleştirme, bakiye yükleme sorgulama ve işlem sonucu bildirme gibi operasyonları HTTP GET/POST istekleriyle gerçekleştirebilir.
->>>>>>> 79da3a56aba5332b5beff2d295dfb11e472df3f7
+Bootloader, firmware metadata bilgilerini ve ana uygulama bütünlüğünü kontrol ederek geçerli firmware’e güvenli geçiş sağlar. Böylece proje; kart yönetimi, GSM/GPRS haberleşmesi, FreeRTOS uygulama mimarisi ve firmware update süreçlerini tek bir gömülü sistem yapısında birleştirir.
 
 Temel senaryolar:
 
@@ -39,7 +35,7 @@ Temel senaryolar:
 - Kayıtlı kartlarda bakiye ve tarife kontrolü yapma
 - Kart için bekleyen bakiye yükleme isteğini sorgulama
 - Bakiye yükleme sonucunu karta ve API’ye bildirme
-- Kartta yapılan ücret çekim ve zamanlarını API'ye bildirme.
+- Kartta yapılan ücret çekim ve zamanlarını API’ye bildirme
 - İşlem sonucunu TFT ekranda gösterme
 
 ---
@@ -88,6 +84,7 @@ Temel senaryolar:
 - Bootloader için aktif firmware sorgulama servisi
 - Raw binary firmware chunk aktarımı
 - Firmware güncelleme durumu yönetimi
+
 ---
 
 ## Bootloader ve Firmware Update Mimarisi
@@ -115,12 +112,13 @@ STM32F407VET6 üzerindeki FLASH alanı bootloader, metadata ve ana uygulama olar
              464 KB
 0x08080000 ─────────────────────
              FLASH End
-
 ```
-## Bootloader Açılış Akışı
+
+### Bootloader Açılış Akışı
 
 Cihaz açıldığında bootloader önce temel donanım hazırlıklarını yapar. Güncelleme butonu aktifse firmware update moduna girer. Güncelleme isteği yoksa mevcut ana uygulamanın geçerliliğini kontrol ederek application’a geçer.
 
+```text
 System Reset
     │
     ▼
@@ -159,13 +157,15 @@ Update Button Check
            │
            ▼
         Jump to Main Application
+```
 
-## Firmware Güncelleme Akışı
+### Firmware Güncelleme Akışı
 
 Bootloader, yeni firmware bilgisini backend servisinden alır. Gelen cevap içinde firmware ID, version, dosya boyutu ve CRC32 bilgisi bulunur. Firmware aktif olarak işaretlenmişse güncelleme süreci başlar.
 
 Güncelleme sırasında önce metadata alanı ve ana uygulama FLASH sektörleri silinir. Daha sonra firmware dosyası belirlenen maksimum parça boyutuna göre indirilir. Her parça HTTP GET isteğiyle raw binary formatta alınır ve FLASH bellekte ana uygulama başlangıç adresinden itibaren yazılır.
 
+```text
 GET /api/firmware/latest
         │
         ▼
@@ -200,7 +200,7 @@ POST /api/firmware/update-active
         │
         ▼
 System reset
-
+```
 
 ## Metadata Yapısı
 
@@ -228,21 +228,13 @@ Bu yapı sayesinde bootloader her açılışta şu kontrolleri yapabilir:
 - Metadata CRC32 değeri doğru mu?
 - FLASH üzerindeki uygulamanın CRC32 değeri metadata ile eşleşiyor mu?
 
-## Ana Uygulamaya Güvenli Geçiş
+### Ana Uygulamaya Güvenli Geçiş
 
-Bootloader doğrudan uygulamaya atlamadan önce ana uygulamanın başlangıç adresindeki ilk iki değeri kontrol eder.
+Bootloader, ana uygulamaya geçmeden önce application başlangıç adresindeki stack pointer ve reset handler değerlerini kontrol eder. Stack pointer değerinin SRAM adres aralığında, reset handler adresinin ise ana uygulama FLASH alanı içinde olması gerekir.
 
-İlk değer application stack pointer bilgisidir ve SRAM adres aralığında olmalıdır. İkinci değer application reset handler adresidir ve ana uygulama FLASH alanı içinde olmalıdır.
+Kontroller başarılıysa bootloader interrupt’ları kapatır, SysTick’i durdurur, vector table adresini ana uygulama başlangıç adresine yönlendirir, MSP değerini ana uygulamanın stack pointer değeriyle günceller ve reset handler üzerinden ana firmware’i çalıştırır.
 
-Kontroller başarılıysa bootloader:
-
-1. Interrupt’ları kapatır.
-2. SysTick’i durdurur.
-3. Vector Table adresini ana uygulama başlangıç adresine alır.
-4. MSP değerini ana uygulama stack pointer değeriyle günceller.
-5. Ana uygulamanın Reset Handler fonksiyonuna atlar.
-
-
+```text
 Validate Application
         │
         ▼
@@ -259,7 +251,7 @@ Set MSP
         │
         ▼
 Jump to Application Reset Handler
-
+```
 
 ## Bare-Metal ve FreeRTOS Yaklaşımı
 
@@ -328,7 +320,7 @@ RFID + GSM + RTC + TFT Application Flow
 
 ### API Servisi
 
-API servisi, STM32 cihazının test ve demo sürecinde haberleştiği destekleyici backend olarak kullanılmıştır. Bu servis üzerinden kart kişiselleştirme bilgileri sorgulanır, bakiye yükleme istekleri oluşturulur, işlem durumları güncellenir ve bootloader testleri için firmware dağıtım süreci yönetilir. Firmware update tarafında `.bin` dosyası servise yüklenir, dosya boyutu ve CRC32 bilgisi hesaplanarak kaydedilir; bootloader ise aktif firmware bilgisini sorgulayarak ilgili dosyayı raw binary parçalar halinde indirir. Projenin ana teknik odağı, STM32 tarafındaki kart yönetimi, SIM800C haberleşmesi, FLASH yazma, CRC doğrulama ve bootloader’dan ana uygulamaya güvenli geçiş süreçleridir.
+API servisi, STM32 cihazının demo ve geliştirme sürecinde haberleştiği destekleyici backend olarak kullanılmıştır. Bu servis üzerinden kart kişiselleştirme bilgileri sorgulanır, bakiye yükleme istekleri oluşturulur, işlem durumları güncellenir ve bootloader için firmware dağıtım süreci yönetilir. Firmware update tarafında `.bin` dosyası servise yüklenir, dosya boyutu ve CRC32 bilgisi hesaplanarak kaydedilir; bootloader ise aktif firmware bilgisini sorgulayarak ilgili dosyayı raw binary parçalar halinde indirir.
 
 ---
 
@@ -616,7 +608,7 @@ Başarılı HTTP sonuçları için sistem özellikle şu cevapları kontrol eder
 
 ## API Endpoint Özeti
 
-API servisi sadece demo/test backend olarak projeye eklenmiştir.
+API servisi, kart işlemleri ve firmware update akışı için kullanılan destekleyici backend katmanıdır.
 
 | İşlem | Method | Endpoint |
 |---|---|---|
@@ -630,6 +622,7 @@ API servisi sadece demo/test backend olarak projeye eklenmiştir.
 | Firmware dosyasını raw binary chunk olarak alma | GET | `/api/firmware/chunk/raw?firmwareId=...&offset=...&size=...` |
 | Firmware aktiflik durumunu güncelleme | POST | `/api/firmware/update-active` |
 | Test amaçlı firmware dosyası yükleme | POST | `/api/firmware/upload` |
+
 ---
 
 ## Postman Testleri
@@ -678,8 +671,8 @@ Postman ile API servisinin temel endpoint testleri yapılmıştır. Aşağıdaki
 ---
 
 ## Demo Video
-https://github.com/user-attachments/assets/29436a0f-e0b2-4e96-8eec-04d78dfcce11
 
+https://github.com/user-attachments/assets/29436a0f-e0b2-4e96-8eec-04d78dfcce11
 
 Video; sistemin açılışını, kart kişiselleştirme işlemini, API üzerinden bakiye yükleme isteği oluşturulmasını, kart okutulduğunda bakiyenin karta yazılmasını, kart tipine göre ücret düşülmesini ve TFT ekrandaki işlem sonuçlarını göstermektedir.
 
@@ -782,8 +775,7 @@ Repository yapısı:
 
 ## Bu Projede Öne Çıkan Teknik Noktalar
 
-<<<<<<< HEAD
-- STM32 üzerinde ana uygulamadan bağımsız custom bootloader mimarisi
+- STM32 üzerinde ana uygulamadan bağımsız bootloader mimarisi
 - Bootloader, metadata ve application alanları için FLASH bellek planlaması
 - SIM800C üzerinden HTTP tabanlı firmware sorgulama ve indirme akışı
 - Raw binary chunk yapısıyla parça parça firmware aktarımı
@@ -802,31 +794,18 @@ Repository yapısı:
 - RTC tabanlı tarih/saat yönetimi ve işlem zamanı takibi
 - TFT ekran üzerinden gerçek zamanlı kullanıcı bilgilendirme
 - Kart tipine göre ücretlendirme, bakiye güncelleme ve işlem sonucu bildirimi
-- STM32 firmware ile destekleyici backend servis arasında uçtan uca sistem entegrasyonu
-=======
-- STM32 üzerinde register-level bare-metal driver geliştirme yaklaşımı
-- FreeRTOS ile görev ayrımı ve queue tabanlı haberleşme
-- SPI hattını RC522 ve TFT arasında kontrollü kullanma
-- SIM800C GSM/GPRS modülü ile hücresel ağ üzerinden API haberleşmesi
-- AT command tabanlı modem kontrolü, GPRS bearer yönetimi ve HTTP GET/POST akışı
-- AT komut cevaplarını timeout, IDLE/interrupt ve paket mantığıyla yönetme
-- MIFARE Classic kart bloklarına özel veri formatı yazma
-- CRC ile kart verisi bütünlüğü kontrolü
-- RTC tabanlı zaman yönetimi
-- TFT üzerinde kullanıcıya işlem sonucu gösterme
-- Kart tipine göre ücret düşme ve işlem sonucunu API’ye bildirme
-- Gömülü sistem + backend servis entegrasyonu
->>>>>>> 79da3a56aba5332b5beff2d295dfb11e472df3f7
+- STM32 firmware ile CardControlService arasında uçtan uca sistem entegrasyonu
 
 ---
 
 ## Geliştirici Notu
 
-Bu proje, gömülü yazılım tarafında gerçek bir ürün akışını simüle etmek amacıyla geliştirilmiştir. Kart kişiselleştirme, bakiye yönetimi, GSM/GPRS üzerinden API haberleşmesi, TFT kullanıcı arayüzü ve FreeRTOS task mimarisini bir araya getiren uçtan uca bir gömülü sistem çalışması olarak geliştirilmiştir.
+Bu proje, gömülü yazılım tarafında gerçek bir ürün akışını simüle etmek amacıyla geliştirilmiştir. Kart kişiselleştirme, bakiye yönetimi, GSM/GPRS üzerinden API haberleşmesi, TFT kullanıcı arayüzü ve FreeRTOS task mimarisini bir araya getiren uçtan uca bir gömülü sistem çalışmasıdır.
 
 Bootloader katmanı ile proje; firmware güncelleme, FLASH bellek yönetimi, metadata tabanlı doğrulama, CRC32 bütünlük kontrolü ve bootloader’dan ana uygulamaya güvenli geçiş gibi gerçek ürün geliştirme süreçlerinde kullanılan konuları da kapsayacak şekilde genişletilmiştir.
 
 CardControlService, bu mimaride kart kişiselleştirme, bakiye yükleme, işlem durumu takibi ve firmware dağıtım süreçlerini yöneten backend servis olarak konumlandırılmıştır. STM32 firmware’i ile haberleşerek hem kart operasyonlarını hem de bootloader’ın firmware update akışını destekler.
+
 ---
 
 ## Yazar
