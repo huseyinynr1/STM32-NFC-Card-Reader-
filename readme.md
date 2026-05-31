@@ -14,11 +14,15 @@ Bu yapı ile proje; RFID/NFC kart yönetimi, GSM/GPRS tabanlı HTTP haberleşmes
 
 ## Genel Bakış
 
+<<<<<<< HEAD
 Bu proje, STM32F407 tabanlı bir NFC kart okuyucu ve bakiye yönetim sistemidir. RC522 ile MIFARE kart okuma/yazma, SIM800C ile HTTP tabanlı API haberleşmesi, DS3231 ile gerçek zaman bilgisi ve ILI9341 TFT ekran ile kullanıcı bilgilendirme işlemleri STM32 üzerinde yönetilir.
 
 Bootloader mimarisi ile sistem, sunucuda aktif olan yeni firmware’i SIM800C üzerinden parça parça indirebilir, STM32 FLASH ana uygulama alanına yazabilir ve CRC32 doğrulaması sonrası güvenli şekilde çalıştırabilir.
 
 Bootloader; firmware metadata kontrolü, uygulama CRC doğrulaması, stack pointer/reset handler adres kontrolü ve vector table yönlendirmesi ile ana uygulamaya kontrollü geçiş sağlar.
+=======
+Bu sistemde STM32, kart okuyucu cihazın ana kontrol birimi olarak çalışır. RC522 modülü ile MIFARE kart okunur/yazılır, SIM800C üzerinden HTTP GET/POST istekleri yapılır, DS3231 RTC ile zaman bilgisi alınır ve ILI9341 TFT ekran üzerinden kullanıcıya işlem durumu gösterilir.Sistem, SIM800C GSM/GPRS modülü üzerinden hücresel veri bağlantısı kurarak uzak API servisiyle haberleşir. Bu sayede cihaz, Wi-Fi veya Ethernet bağlantısına ihtiyaç duymadan kart kişiselleştirme, bakiye yükleme sorgulama ve işlem sonucu bildirme gibi operasyonları HTTP GET/POST istekleriyle gerçekleştirebilir.
+>>>>>>> 79da3a56aba5332b5beff2d295dfb11e472df3f7
 
 Temel senaryolar:
 
@@ -52,6 +56,10 @@ Temel senaryolar:
 - **Custom low-level driver development**
 - FreeRTOS task/queue/mutex mimarisi
 - SPI, I2C, USART, DMA, Timer, GPIO
+- GSM/GPRS tabanlı hücresel haberleşme
+- SIM800C AT command yönetimi
+- HTTP GET/POST haberleşmesi
+- UART interrupt/DMA tabanlı modem cevap yönetimi
 - Interrupt, timeout ve donanım durum bayrağı yönetimi
 - Custom STM32 bootloader mimarisi
 - FLASH bellek bölümleme ve uygulama alanı yönetimi
@@ -308,7 +316,10 @@ RFID + GSM + RTC + TFT Application Flow
 - Kart kişiselleştirme işlemi
 - Kart bakiyesi, maksimum bakiye, vize tarihi ve işlem sayaçlarının kart bloklarında tutulması
 - CRC16 ile kart verisi bütünlük kontrolü
-- SIM800C ile GPRS bağlantısı ve HTTP GET/POST işlemleri
+- SIM800C GSM/GPRS modülü ile hücresel veri bağlantısı kurulması
+- AT komutlarıyla SIM durumu, şebeke kaydı, GPRS bearer ve HTTP servis yönetimi
+- Uzak API servisine HTTP GET/POST istekleri gönderilmesi
+- HTTP cevaplarının UART interrupt/DMA tabanlı alınması ve timeout/paket mantığıyla işlenmesi
 - API’den gelen JSON cevaplarının manuel parse edilmesi
 - FreeRTOS task/queue mimarisi
 - TFT ekranda saat, tarih, bakiye, yüklenen tutar ve işlem sonucu gösterimi
@@ -580,9 +591,9 @@ GET /topup/getbyuid?cardUid=...
 
 ---
 
-## SIM800C HTTP Haberleşmesi
+## SIM800C GSM/GPRS ve HTTP Haberleşmesi
 
-SIM800C tarafında temel AT komut akışı şu mantıkla ilerler:
+SIM800C modülü, projede STM32 cihazının GSM/GPRS ağı üzerinden uzak API servisiyle haberleşmesini sağlar. STM32, USART hattı üzerinden SIM800C’ye AT komutları gönderir; SIM kart, şebeke kaydı, GPRS bağlantısı, HTTP servis başlatma, GET/POST işlemleri ve sunucu cevaplarının okunması bu komut akışıyla yönetilir.
 
 1. Modül başlatılır.
 2. SIM ve şebeke durumu kontrol edilir.
@@ -771,6 +782,7 @@ Repository yapısı:
 
 ## Bu Projede Öne Çıkan Teknik Noktalar
 
+<<<<<<< HEAD
 - STM32 üzerinde ana uygulamadan bağımsız custom bootloader mimarisi
 - Bootloader, metadata ve application alanları için FLASH bellek planlaması
 - SIM800C üzerinden HTTP tabanlı firmware sorgulama ve indirme akışı
@@ -791,6 +803,20 @@ Repository yapısı:
 - TFT ekran üzerinden gerçek zamanlı kullanıcı bilgilendirme
 - Kart tipine göre ücretlendirme, bakiye güncelleme ve işlem sonucu bildirimi
 - STM32 firmware ile destekleyici backend servis arasında uçtan uca sistem entegrasyonu
+=======
+- STM32 üzerinde register-level bare-metal driver geliştirme yaklaşımı
+- FreeRTOS ile görev ayrımı ve queue tabanlı haberleşme
+- SPI hattını RC522 ve TFT arasında kontrollü kullanma
+- SIM800C GSM/GPRS modülü ile hücresel ağ üzerinden API haberleşmesi
+- AT command tabanlı modem kontrolü, GPRS bearer yönetimi ve HTTP GET/POST akışı
+- AT komut cevaplarını timeout, IDLE/interrupt ve paket mantığıyla yönetme
+- MIFARE Classic kart bloklarına özel veri formatı yazma
+- CRC ile kart verisi bütünlüğü kontrolü
+- RTC tabanlı zaman yönetimi
+- TFT üzerinde kullanıcıya işlem sonucu gösterme
+- Kart tipine göre ücret düşme ve işlem sonucunu API’ye bildirme
+- Gömülü sistem + backend servis entegrasyonu
+>>>>>>> 79da3a56aba5332b5beff2d295dfb11e472df3f7
 
 ---
 
