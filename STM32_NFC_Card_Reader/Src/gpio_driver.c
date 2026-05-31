@@ -205,18 +205,18 @@ void GPIOB_Config(void)
 	GPIOB->AFR[1] &= ~(0xFU << 8);
 	GPIOB->AFR[1] |= (7U << 8);
 
-	// PB11(USART3_TX) AF Mode
+	// PB11(USART3_RX) AF Mode
 	GPIOB->MODER &= ~(3U << 22);
 	GPIOB->MODER |= (2U << 22);
 
-	// PB11(USART3_TX) output push pull
+	// PB11(USART3_RX) output push pull
     GPIOB->OTYPER &= ~(1U << 11);
 
-	// PB11(USART3_TX) Speed mode Very high speed.
+	// PB11(USART3_RX) Speed mode Very high speed.
 	GPIOB->OSPEEDR &= ~(3U << 22);
 	GPIOB->OSPEEDR |= (3U << 22);
 
-	// PB11(USART3_TX) pull up.
+	// PB11(USART3_RX) pull up.
 	GPIOB->PUPDR &= ~(3U << 22);
 	GPIOB->PUPDR |=  (1U << 22);
 

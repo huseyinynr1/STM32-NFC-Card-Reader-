@@ -13,13 +13,19 @@
 #include "rtc_ds3231.h"
 #include "tft_ili9341.h"
 
+#define MAIN_APP_START_ADDRESS 0x0800C000U  // Bu uygulamanın FLASH'taki başlangıç adresi.
+
 uint32_t SystemCoreClock = 168000000;  // Sistem clock frekansı 168 MHz olarak bildir.
 
 int main(void)
 {
+	// Vector table'daki adresi, bu uygulama program adresinin başlangıç adresini yap.
+	SCB->VTOR = MAIN_APP_START_ADDRESS;
+
 	FPU_Init();        			// FPU(Floating Point Unit) Başlat.
 	Clock_Config();    			// Sistem clock başlat.
 	TIM6_Init();       			// Timer6 başlat.
+	__enable_irq();             // Interrupt'ları aktif et.
 	GPIOA_Config();    			// GPIO A portu başlat.
 	GPIOB_Config();    			// GPIO B portu başlat.
 	I2C1_Config();     			// I2C 1 başlat.

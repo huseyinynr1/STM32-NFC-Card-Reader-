@@ -1,12 +1,6 @@
-/*
- * gpio_config.h
- *
- *  Created on: Feb 18, 2026
- *      Author: husey
- */
-
 #ifndef GPIO_DRIVER_H_
 #define GPIO_DRIVER_H_
+
 #include <stm32f4xx.h>
 
 void GPIOA_Config(void); // GPIO A portu için başlangıç konfigürasyon ayarları fonksiyonu

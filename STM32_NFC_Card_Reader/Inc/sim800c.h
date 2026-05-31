@@ -78,7 +78,7 @@ typedef enum
 extern char ip_adress[20];                   // IP adres kaydedilecek dizi.
 extern volatile uint8_t waiting_response;    // SIM800C'den yanıt bekleniyor bayrağı.
 
-// SIM800C uyandırma ve başlatma fonksiyonu.
+// SIM800C başlatma fonksiyonu.
 SIM800C_Status_Type SIM800C_Init();
 
 // SIM800C şebeke durumu sorgulama
